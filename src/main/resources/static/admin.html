@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>Administração - Loja de Cupcakes</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <h1>🧁 Administração de Pedidos</h1>
+        <p>Pedidos recebidos pela loja</p>
+    </header>
+
+    <main>
+        <h2>Pedidos cadastrados</h2>
+        <div id="lista-pedidos">Carregando pedidos...</div>
+        <p><a href="/">Voltar para a loja</a></p>
+    </main>
+
+    <script>
+        async function carregarPedidos() {
+            const lista = document.getElementById('lista-pedidos');
+
+            try {
+                const [resPedidos, resCupcakes] = await Promise.all([
+                    fetch('/pedidos'),
+                    fetch('/cupcakes')
+                ]);
+
+                if (!resPedidos.ok || !resCupcakes.ok) {
+                    throw new Error('Erro ao consultar dados');
+                }
+
+                const pedidos = await resPedidos.json();
+                const cupcakes = await resCupcakes.json();
+
+                lista.innerHTML = '';
+
+                if (pedidos.length === 0) {
+                    lista.textContent = 'Nenhum pedido cadastrado.';
+                    return;
+                }
+
+                pedidos.forEach(pedido => {
+                    const cupcake = cupcakes.find(
+                        item => item.id === pedido.cupcakeId
+                    );
+
+                    const card = document.createElement('div');
+                    card.style.background = 'white';
+                    card.style.padding = '20px';
+                    card.style.marginBottom = '15px';
+                    card.style.borderRadius = '10px';
+
+                    const titulo = document.createElement('h3');
+                    titulo.textContent = `Pedido #${pedido.id}`;
+
+                    const detalhes = document.createElement('p');
+                    detalhes.textContent =
+                        `Cliente: ${pedido.nomeCliente}
+                        | Produto: ${cupcake?.nome ?? 'Não encontrado'}
+                        | Quantidade: ${pedido.quantidade}
+                        | Total: R$ ${pedido.valorTotal.toFixed(2)}
+                        | Pagamento: ${pedido.formaPagamento}
+                        | Status: ${pedido.status}`;
+
+                    card.append(titulo, detalhes);
+                    lista.appendChild(card);
+                });
+
+            } catch (erro) {
+                lista.textContent = 'Erro ao carregar pedidos.';
+                console.error(erro);
+            }
+        }
+
+        carregarPedidos();
+    </script>
+</body>
+</html>

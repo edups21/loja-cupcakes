@@ -1,0 +1,208 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>Loja de Cupcakes</title>
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header>
+    <h1>🧁 Loja de Cupcakes</h1>
+    <p>Bem-vindo à nossa loja!</p>
+    <p>Escolha seus cupcakes favoritos.</p>
+</header>
+
+<main>
+    <h2>Nosso Cardápio</h2>
+
+    <div id="produtos">
+        Carregando cupcakes...
+    </div>
+
+
+<section id="finalizar-compra" style="display: none;">
+    <h2>Finalizar Pedido</h2>
+
+    <form id="form-pedido">
+        <p id="produto-selecionado"></p>
+
+        <label for="nome-cliente">Seu nome:</label>
+        <input type="text" id="nome-cliente" required>
+
+        <label for="forma-pagamento">
+            Forma de pagamento:
+        </label>
+
+        <select id="forma-pagamento" required>
+            <option value="PIX">Pix</option>
+            <option value="CARTAO">Cartão de crédito</option>
+            <option value="DINHEIRO">Dinheiro</option>
+        </select>
+
+        <button type="submit">Finalizar Pedido</button>
+    </form>
+
+    <p id="mensagem-pedido"></p>
+</section>
+
+</main>
+
+
+    <script>
+        let cupcakeSelecionado = null;
+        let quantidadeSelecionada = 1;
+        fetch('/cupcakes')
+            .then(resposta => {
+                if (!resposta.ok) {
+                    throw new Error('Erro ao consultar cupcakes');
+                }
+                return resposta.json();
+            })
+            .then(cupcakes => {
+                const produtos =
+                    document.getElementById('produtos');
+
+                produtos.innerHTML = '';
+
+                if (cupcakes.length === 0) {
+                    produtos.textContent =
+                        'Nenhum cupcake cadastrado.';
+                    return;
+                }
+
+                cupcakes.forEach(cupcake => {
+                    const item = document.createElement('div');
+
+                    const nome = document.createElement('h3');
+                    nome.textContent = cupcake.nome;
+
+                    const descricao = document.createElement('p');
+                    descricao.textContent = cupcake.descricao;
+
+                    const preco = document.createElement('p');
+                    preco.textContent =
+                        'R$ ' + cupcake.preco.toFixed(2);
+
+                    
+const quantidade = document.createElement('input');
+quantidade.type = 'number';
+quantidade.min = '1';
+quantidade.value = '1';
+quantidade.style.width = '60px';
+quantidade.style.margin = '10px';
+
+const botao = document.createElement('button');
+botao.textContent = 'Comprar';
+
+
+
+botao.addEventListener('click', () => {
+    const qtd = Number(quantidade.value);
+
+    if (!Number.isInteger(qtd) || qtd < 1) {
+        alert('Informe uma quantidade válida.');
+        return;
+    }
+
+    cupcakeSelecionado = cupcake;
+    quantidadeSelecionada = qtd;
+
+    document.getElementById('produto-selecionado')
+        .textContent =
+        `${qtd} x ${cupcake.nome} — Total: R$ ` +
+        (cupcake.preco * qtd).toFixed(2);
+
+    document.getElementById('mensagem-pedido')
+        .textContent = '';
+
+    const secao = document.getElementById('finalizar-compra');
+    secao.style.display = 'block';
+    secao.scrollIntoView({ behavior: 'smooth' });
+});
+
+
+
+item.append(nome, descricao, preco, quantidade, botao);
+
+                    item.appendChild(
+                        document.createElement('hr')
+                    );
+
+                    produtos.appendChild(item);
+                });
+            })
+            .catch(erro => {
+                document.getElementById('produtos')
+                    .textContent =
+                    'Erro ao carregar os cupcakes.';
+                console.error(erro);
+            });
+
+
+document.getElementById('form-pedido')
+    .addEventListener('submit', async (evento) => {
+        evento.preventDefault();
+
+        if (!cupcakeSelecionado) {
+            alert('Escolha um cupcake primeiro.');
+            return;
+        }
+
+        const nome = document.getElementById('nome-cliente')
+            .value.trim();
+
+        const pagamento = document.getElementById('forma-pagamento')
+            .value;
+
+        const mensagem = document.getElementById('mensagem-pedido');
+
+        if (!nome) {
+            mensagem.textContent = 'Informe seu nome.';
+            return;
+        }
+
+        const pedido = {
+            nomeCliente: nome,
+            cupcakeId: cupcakeSelecionado.id,
+            quantidade: quantidadeSelecionada,
+            formaPagamento: pagamento
+        };
+
+        try {
+            const resposta = await fetch('/pedidos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(pedido)
+            });
+
+            if (!resposta.ok) {
+                throw new Error('Erro ao cadastrar pedido');
+            }
+
+            const resultado = await resposta.json();
+
+            mensagem.textContent =
+                `Pedido nº ${resultado.id} realizado! ` +
+                `Total: R$ ${resultado.valorTotal.toFixed(2)}. ` +
+                `Pagamento: ${resultado.formaPagamento}.`;
+
+            document.getElementById('form-pedido').reset();
+
+        } catch (erro) {
+            mensagem.textContent =
+                'Não foi possível finalizar o pedido.';
+            console.error(erro);
+        }
+    });
+
+    </script>
+
+</body>
+</html>
