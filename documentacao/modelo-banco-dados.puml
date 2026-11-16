@@ -1,0 +1,33 @@
+
+@startuml
+title Modelo de Dados - Loja de Cupcakes
+
+entity "Cupcake" as cupcake {
+  * id : BIGINT <<PK>>
+  --
+  nome : VARCHAR
+  descricao : VARCHAR
+  preco : DOUBLE
+}
+
+entity "Pedido" as pedido {
+  * id : BIGINT <<PK>>
+  --
+  nomeCliente : VARCHAR
+  cupcakeId : BIGINT
+  quantidade : INTEGER
+  valorTotal : DOUBLE
+  formaPagamento : VARCHAR
+  status : VARCHAR
+}
+
+pedido }o..|| cupcake : referencia por cupcakeId
+
+note bottom of pedido
+  cupcakeId armazena o ID do cupcake.
+  A relacao apresentada e logica.
+  Nao representa necessariamente
+  uma chave estrangeira no MySQL.
+end note
+
+@enduml

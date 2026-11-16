@@ -1,0 +1,43 @@
+
+@startuml
+title Diagrama de Classes - Loja de Cupcakes
+
+class Cupcake {
+  - id : Long
+  - nome : String
+  - descricao : String
+  - preco : BigDecimal
+}
+
+class Pedido {
+  - id : Long
+  - nomeCliente : String
+  - cupcakeId : Long
+  - quantidade : Integer
+  - valorTotal : BigDecimal
+  - formaPagamento : String
+  - status : String
+}
+
+class CupcakeController {
+  + listar()
+  + cadastrar()
+}
+
+class PedidoController {
+  + listar()
+  + cadastrar()
+}
+
+interface CupcakeRepository
+interface PedidoRepository
+
+CupcakeController --> CupcakeRepository
+PedidoController --> PedidoRepository
+
+CupcakeRepository --> Cupcake
+PedidoRepository --> Pedido
+
+Pedido ..> Cupcake : referencia por cupcakeId
+
+@enduml

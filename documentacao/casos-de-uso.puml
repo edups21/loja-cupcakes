@@ -1,0 +1,28 @@
+
+@startuml
+left to right direction
+
+actor Cliente
+actor Administrador
+
+rectangle "Sistema Loja de Cupcakes" {
+    usecase "Visualizar cupcakes" as UC1
+    usecase "Selecionar cupcake" as UC2
+    usecase "Informar quantidade" as UC3
+    usecase "Informar nome" as UC4
+    usecase "Escolher forma de pagamento" as UC5
+    usecase "Realizar pedido" as UC6
+    usecase "Consultar pedidos" as UC7
+}
+
+Cliente --> UC1
+Cliente --> UC2
+Cliente --> UC6
+
+UC6 ..> UC3 : <<include>>
+UC6 ..> UC4 : <<include>>
+UC6 ..> UC5 : <<include>>
+
+Administrador --> UC7
+
+@enduml

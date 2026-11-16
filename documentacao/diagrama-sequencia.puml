@@ -1,0 +1,36 @@
+
+@startuml
+title Diagrama de Sequencia - Realizacao de Pedido
+
+actor Cliente
+participant "Pagina da Loja" as Frontend
+participant "PedidoController" as Controller
+participant "CupcakeRepository" as CupRepo
+participant "PedidoRepository" as PedidoRepo
+database "MySQL" as Banco
+
+Cliente -> Frontend : Seleciona cupcake e quantidade
+Cliente -> Frontend : Informa nome e forma de pagamento
+Cliente -> Frontend : Confirma pedido
+
+Frontend -> Controller : POST /pedidos
+
+Controller -> Controller : Valida os dados do pedido
+
+Controller -> CupRepo : Busca cupcake pelo ID
+CupRepo -> Banco : SELECT cupcake
+Banco --> CupRepo : Dados do cupcake
+CupRepo --> Controller : Cupcake encontrado
+
+Controller -> Controller : Calcula valor total
+Controller -> Controller : Define status RECEBIDO
+
+Controller -> PedidoRepo : Salva pedido
+PedidoRepo -> Banco : INSERT pedido
+Banco --> PedidoRepo : Pedido registrado
+PedidoRepo --> Controller : Pedido salvo
+
+Controller --> Frontend : Retorna confirmacao
+Frontend --> Cliente : Exibe pedido confirmado
+
+@enduml

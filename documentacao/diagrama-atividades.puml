@@ -1,0 +1,32 @@
+
+@startuml
+title Diagrama de Atividades - Loja de Cupcakes
+
+start
+
+:Cliente acessa a loja;
+:Visualiza os cupcakes disponiveis;
+:Seleciona um cupcake;
+:Informa a quantidade;
+:Informa seu nome;
+:Escolhe a forma de pagamento;
+:Clica em confirmar pedido;
+
+if (Dados do pedido validos?) then (Sim)
+  :Sistema consulta o cupcake;
+
+  if (Cupcake encontrado?) then (Sim)
+    :Calcula o valor total;
+    :Define status RECEBIDO;
+    :Salva o pedido no banco de dados;
+    :Exibe confirmacao ao cliente;
+  else (Nao)
+    :Exibe mensagem de erro;
+  endif
+
+else (Nao)
+  :Exibe mensagem de erro;
+endif
+
+stop
+@enduml
